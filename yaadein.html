@@ -946,55 +946,6 @@ function openLightbox(id) {
   updateNavBtns();
 }
 
-// Chunked blob fallback for video — downloads entire file then plays
-function fetchVideoBlob(m, wrap) {
-  const req = new XMLHttpRequest();
-  req.open('GET', `https://www.googleapis.com/drive/v3/files/${m.id}?alt=media`);
-  req.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-  req.responseType = 'blob';
-
-  req.onprogress = (e) => {
-    if (e.lengthComputable) {
-      const pct = Math.round((e.loaded / e.total) * 100);
-      const done = (e.loaded / (1024*1024)).toFixed(1);
-      const tot  = (e.total  / (1024*1024)).toFixed(1);
-      if (wrap.querySelector('.lb-loading span')) {
-        wrap.querySelector('.lb-loading span').textContent = `Video download: ${done}MB / ${tot}MB (${pct}%)`;
-      }
-    }
-  };
-
-  req.onload = () => {
-    if (req.status >= 200 && req.status < 300) {
-      const blobUrl = URL.createObjectURL(req.response);
-      wrap.innerHTML = '';
-      const vid = document.createElement('video');
-      vid.className   = 'lb-video';
-      vid.controls    = true;
-      vid.autoplay    = true;
-      vid.playsInline = true;
-      vid.src         = blobUrl;
-      wrap.appendChild(vid);
-    } else {
-      showVideoFallback(m, wrap);
-    }
-  };
-
-  req.onerror = () => showVideoFallback(m, wrap);
-  req.send();
-}
-
-function showVideoFallback(m, wrap) {
-  wrap.innerHTML = `<div style="text-align:center;color:#fff">
-    <div style="font-size:52px;margin-bottom:16px">🎬</div>
-    <div style="font-size:14px;color:rgba(255,255,255,.6);margin-bottom:12px">Video browser mein nahi chal sakti</div>
-    <a href="${m.webViewLink}" target="_blank"
-       style="display:inline-block;padding:12px 28px;background:#fff;color:#2c1d0e;border-radius:50px;font-size:14px;font-weight:600;text-decoration:none">
-      ▶ Drive mein Dekho
-    </a>
-  </div>`;
-}
-
 function showLbItem(idx) {
   const m = lbCurrentList[idx];
   if (!m) return;
@@ -1006,44 +957,16 @@ function showLbItem(idx) {
   updateNavBtns();
 
   if (m.mediaType === 'video') {
-    // Use a <video> with the Drive streaming URL + access token appended
-    // Drive supports Range requests on this endpoint which video element needs
-    wrap.innerHTML = `<div class="lb-loading"><div class="lb-spinner"></div><span>Video load ho raha hai...</span></div>`;
-
-    // Create a hidden video element first to test direct URL approach
-    const videoUrl = `https://www.googleapis.com/drive/v3/files/${m.id}?alt=media&access_token=${encodeURIComponent(accessToken)}`;
-
-    // Use XMLHttpRequest with responseType arraybuffer + MediaSource for streaming
-    // Simpler & more compatible: just set src with token — browser handles range requests
-    const vid = document.createElement('video');
-    vid.className   = 'lb-video';
-    vid.controls    = true;
-    vid.autoplay    = true;
-    vid.playsInline = true;
-    vid.preload     = 'auto';
-
-    vid.addEventListener('canplay', () => {
-      wrap.innerHTML = '';
-      wrap.appendChild(vid);
-    }, {once: true});
-
-    vid.addEventListener('error', () => {
-      // Fallback: chunked blob approach
-      wrap.innerHTML = `<div class="lb-loading"><div class="lb-spinner"></div><span>Dusra tarika try kar raha hai...</span></div>`;
-      fetchVideoBlob(m, wrap);
-    }, {once: true});
-
-    // Set src with token — browser will make range requests automatically
-    vid.src = videoUrl;
-    vid.load();
-
-    // Safety timeout: if canplay doesn't fire in 4s, try blob approach
-    setTimeout(() => {
-      if (wrap.querySelector('.lb-loading')) {
-        vid.src = '';
-        fetchVideoBlob(m, wrap);
-      }
-    }, 4000);
+    // Google Drive iframe preview — no CORS issues, full native player
+    wrap.innerHTML = `
+      <div style="position:relative;width:min(85vw,860px);aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;box-shadow:0 8px 40px rgba(0,0,0,.6)">
+        <iframe
+          src="https://drive.google.com/file/d/${m.id}/preview"
+          style="width:100%;height:100%;border:none;display:block"
+          allow="autoplay; fullscreen"
+          allowfullscreen
+        ></iframe>
+      </div>`;
     return;
   }
 
@@ -1077,12 +1000,10 @@ function updateNavBtns() {
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open');
   const wrap = document.getElementById('lightbox-media-wrap');
-  const vid = wrap.querySelector('video');
-  if (vid) {
-    vid.pause();
-    vid.src = '';
-    vid.load();
-  }
+  // Stop iframe video by clearing src before removing
+  const iframe = wrap.querySelector('iframe');
+  if (iframe) iframe.src = '';
+  // Cleanup image blob URLs
   const img = wrap.querySelector('img');
   if (img && img.src.startsWith('blob:')) URL.revokeObjectURL(img.src);
   wrap.innerHTML = '';
