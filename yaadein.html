@@ -123,6 +123,27 @@
     .collage-many .ci:first-child { grid-row: 1 / 3; height: auto; }
     .collage-many .ci { height: 200px; }
 
+    /* ── Photo entry animations (varied per position) ── */
+    @keyframes enterTop    { from { opacity:0; transform: translateY(-40px) scale(.95); } to { opacity:1; transform: translateY(0) scale(1); } }
+    @keyframes enterBottom { from { opacity:0; transform: translateY(40px) scale(.95);  } to { opacity:1; transform: translateY(0) scale(1); } }
+    @keyframes enterLeft   { from { opacity:0; transform: translateX(-48px) scale(.95); } to { opacity:1; transform: translateX(0) scale(1); } }
+    @keyframes enterRight  { from { opacity:0; transform: translateX(48px) scale(.95);  } to { opacity:1; transform: translateX(0) scale(1); } }
+    @keyframes enterZoom   { from { opacity:0; transform: scale(.7) rotate(-3deg); }     to { opacity:1; transform: scale(1) rotate(0deg); } }
+    @keyframes enterFade   { from { opacity:0; transform: scale(1.08); }                 to { opacity:1; transform: scale(1); } }
+    @keyframes enterSpin   { from { opacity:0; transform: scale(.8) rotate(8deg); }      to { opacity:1; transform: scale(1) rotate(0deg); } }
+
+    /* Each ci gets its animation assigned by JS via data-anim attribute */
+    .ci[data-anim="top"]    { animation: enterTop    .55s cubic-bezier(.22,1,.36,1) both; }
+    .ci[data-anim="bottom"] { animation: enterBottom .55s cubic-bezier(.22,1,.36,1) both; }
+    .ci[data-anim="left"]   { animation: enterLeft   .55s cubic-bezier(.22,1,.36,1) both; }
+    .ci[data-anim="right"]  { animation: enterRight  .55s cubic-bezier(.22,1,.36,1) both; }
+    .ci[data-anim="zoom"]   { animation: enterZoom   .6s  cubic-bezier(.34,1.56,.64,1) both; }
+    .ci[data-anim="fade"]   { animation: enterFade   .65s ease both; }
+    .ci[data-anim="spin"]   { animation: enterSpin   .6s  cubic-bezier(.34,1.56,.64,1) both; }
+
+    /* Continuous subtle ken-burns on image inside */
+    @keyframes kenBurns { 0%{transform:scale(1)} 50%{transform:scale(1.06) translate(1%,1%)} 100%{transform:scale(1)} }
+
     /* ── Collage Item ── */
     .ci {
       position: relative; overflow: hidden;
@@ -132,8 +153,8 @@
       transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s;
     }
     .ci:hover { transform: scale(1.025) rotate(.4deg); box-shadow: 0 12px 36px rgba(100,70,20,.22); z-index: 2; }
-    .ci img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s ease; }
-    .ci:hover img { transform: scale(1.06); }
+    .ci img { width: 100%; height: 100%; object-fit: cover; display: block; animation: kenBurns 8s ease-in-out infinite; }
+    .ci:hover img { animation: none; transform: scale(1.08); transition: transform .5s ease; }
     .ci::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(44,29,14,.55) 100%); z-index: 1; pointer-events: none; }
 
     .ci-caption { position: absolute; bottom: 0; left: 0; right: 0; padding: 10px 12px 8px; z-index: 2; transform: translateY(4px); transition: transform .3s; }
@@ -224,12 +245,13 @@
     @keyframes lbFadeIn { from{opacity:0} to{opacity:1} }
     .lightbox-inner { position: relative; max-width: 92vw; max-height: 92vh; display: flex; flex-direction: column; align-items: center; }
 
-    /* ── VIDEO PLAYER in lightbox (Fix #3) ── */
+    /* ── VIDEO PLAYER in lightbox ── */
     .lb-video {
       max-width: 85vw; max-height: 72vh;
       border-radius: 12px;
       outline: none;
       background: #000;
+      display: block;
       animation: lbZoomIn .3s cubic-bezier(.34,1.56,.64,1);
     }
     .lightbox-media { max-width: 85vw; max-height: 76vh; border-radius: 12px; object-fit: contain; animation: lbZoomIn .3s cubic-bezier(.34,1.56,.64,1); }
@@ -774,9 +796,13 @@ function renderCollage(items) {
   return `<div class="collage-wrap"><div class="${cls}">${inner}</div>${strip}</div>`;
 }
 
+// Varied entry animations cycling through directions
+const ANIM_TYPES = ['left','top','right','bottom','zoom','fade','spin','left','zoom','right'];
+
 function ciHtml(m, extraOverlay='', idx=0) {
   const date  = new Date(m.createdAt).toLocaleDateString('hi-IN',{day:'numeric',month:'short',year:'numeric'});
-  const delay = (idx * 0.08) + 's';
+  const delay = (idx * 0.1) + 's';
+  const anim  = ANIM_TYPES[idx % ANIM_TYPES.length];
   let media;
   if (m.mediaType === 'video') {
     media = `<div class="ci-video-bg"><div class="play-circle">▶</div></div><div class="ci-video-badge">▶ Video</div>`;
@@ -785,7 +811,7 @@ function ciHtml(m, extraOverlay='', idx=0) {
   } else {
     media = `<div class="ci-video-bg"><div style="font-size:32px">📷</div></div>`;
   }
-  return `<div class="ci" data-view="${m.id}" style="animation:sectionReveal .5s ${delay} ease both">
+  return `<div class="ci" data-view="${m.id}" data-anim="${anim}" style="animation-delay:${delay}">
     ${media}
     ${extraOverlay}
     <div class="ci-caption">
@@ -920,6 +946,55 @@ function openLightbox(id) {
   updateNavBtns();
 }
 
+// Chunked blob fallback for video — downloads entire file then plays
+function fetchVideoBlob(m, wrap) {
+  const req = new XMLHttpRequest();
+  req.open('GET', `https://www.googleapis.com/drive/v3/files/${m.id}?alt=media`);
+  req.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+  req.responseType = 'blob';
+
+  req.onprogress = (e) => {
+    if (e.lengthComputable) {
+      const pct = Math.round((e.loaded / e.total) * 100);
+      const done = (e.loaded / (1024*1024)).toFixed(1);
+      const tot  = (e.total  / (1024*1024)).toFixed(1);
+      if (wrap.querySelector('.lb-loading span')) {
+        wrap.querySelector('.lb-loading span').textContent = `Video download: ${done}MB / ${tot}MB (${pct}%)`;
+      }
+    }
+  };
+
+  req.onload = () => {
+    if (req.status >= 200 && req.status < 300) {
+      const blobUrl = URL.createObjectURL(req.response);
+      wrap.innerHTML = '';
+      const vid = document.createElement('video');
+      vid.className   = 'lb-video';
+      vid.controls    = true;
+      vid.autoplay    = true;
+      vid.playsInline = true;
+      vid.src         = blobUrl;
+      wrap.appendChild(vid);
+    } else {
+      showVideoFallback(m, wrap);
+    }
+  };
+
+  req.onerror = () => showVideoFallback(m, wrap);
+  req.send();
+}
+
+function showVideoFallback(m, wrap) {
+  wrap.innerHTML = `<div style="text-align:center;color:#fff">
+    <div style="font-size:52px;margin-bottom:16px">🎬</div>
+    <div style="font-size:14px;color:rgba(255,255,255,.6);margin-bottom:12px">Video browser mein nahi chal sakti</div>
+    <a href="${m.webViewLink}" target="_blank"
+       style="display:inline-block;padding:12px 28px;background:#fff;color:#2c1d0e;border-radius:50px;font-size:14px;font-weight:600;text-decoration:none">
+      ▶ Drive mein Dekho
+    </a>
+  </div>`;
+}
+
 function showLbItem(idx) {
   const m = lbCurrentList[idx];
   if (!m) return;
@@ -931,34 +1006,44 @@ function showLbItem(idx) {
   updateNavBtns();
 
   if (m.mediaType === 'video') {
-    // FIX #3: Stream video directly via authenticated fetch → blob URL
+    // Use a <video> with the Drive streaming URL + access token appended
+    // Drive supports Range requests on this endpoint which video element needs
     wrap.innerHTML = `<div class="lb-loading"><div class="lb-spinner"></div><span>Video load ho raha hai...</span></div>`;
-    gFetch(`https://www.googleapis.com/drive/v3/files/${m.id}?alt=media`)
-      .then(r => {
-        if (!r.ok) throw new Error('fail');
-        return r.blob();
-      })
-      .then(blob => {
-        const url = URL.createObjectURL(blob);
-        wrap.innerHTML = `<video
-          src="${url}"
-          class="lb-video"
-          controls
-          autoplay
-          playsinline
-        ></video>`;
-      })
-      .catch(() => {
-        // Fallback: show thumbnail + open in Drive button
-        wrap.innerHTML = `<div style="text-align:center;color:#fff">
-          <div style="font-size:52px;margin-bottom:16px">🎬</div>
-          <div style="font-size:14px;color:rgba(255,255,255,.6);margin-bottom:16px">Video seedha load nahi hui</div>
-          <a href="${m.webViewLink}" target="_blank"
-             style="display:inline-block;padding:12px 28px;background:#fff;color:#2c1d0e;border-radius:50px;font-size:14px;font-weight:600;text-decoration:none">
-            ▶ Drive mein Dekho
-          </a>
-        </div>`;
-      });
+
+    // Create a hidden video element first to test direct URL approach
+    const videoUrl = `https://www.googleapis.com/drive/v3/files/${m.id}?alt=media&access_token=${encodeURIComponent(accessToken)}`;
+
+    // Use XMLHttpRequest with responseType arraybuffer + MediaSource for streaming
+    // Simpler & more compatible: just set src with token — browser handles range requests
+    const vid = document.createElement('video');
+    vid.className   = 'lb-video';
+    vid.controls    = true;
+    vid.autoplay    = true;
+    vid.playsInline = true;
+    vid.preload     = 'auto';
+
+    vid.addEventListener('canplay', () => {
+      wrap.innerHTML = '';
+      wrap.appendChild(vid);
+    }, {once: true});
+
+    vid.addEventListener('error', () => {
+      // Fallback: chunked blob approach
+      wrap.innerHTML = `<div class="lb-loading"><div class="lb-spinner"></div><span>Dusra tarika try kar raha hai...</span></div>`;
+      fetchVideoBlob(m, wrap);
+    }, {once: true});
+
+    // Set src with token — browser will make range requests automatically
+    vid.src = videoUrl;
+    vid.load();
+
+    // Safety timeout: if canplay doesn't fire in 4s, try blob approach
+    setTimeout(() => {
+      if (wrap.querySelector('.lb-loading')) {
+        vid.src = '';
+        fetchVideoBlob(m, wrap);
+      }
+    }, 4000);
     return;
   }
 
@@ -992,9 +1077,12 @@ function updateNavBtns() {
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open');
   const wrap = document.getElementById('lightbox-media-wrap');
-  // Pause any playing video and revoke blob URLs before clearing
   const vid = wrap.querySelector('video');
-  if (vid) { vid.pause(); if (vid.src.startsWith('blob:')) URL.revokeObjectURL(vid.src); }
+  if (vid) {
+    vid.pause();
+    vid.src = '';
+    vid.load();
+  }
   const img = wrap.querySelector('img');
   if (img && img.src.startsWith('blob:')) URL.revokeObjectURL(img.src);
   wrap.innerHTML = '';
