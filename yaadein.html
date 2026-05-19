@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Little Moments, Big Memories</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Dancing+Script:wght@500;700&display=swap" rel="stylesheet" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <style>
@@ -24,10 +24,22 @@
     }
     body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 80px; }
 
-    /* ── Auth Screen ── */
-    #auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; background: var(--bg); }
-    .auth-card { background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: 56px 48px; max-width: 420px; width: 90%; text-align: center; box-shadow: 0 8px 48px rgba(100,70,20,.13); }
-    .auth-logo { width: 72px; height: 72px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 24px; }
+    /* ── Floating petals background ── */
+    .petals { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .petal { position: absolute; font-size: 18px; opacity: 0; animation: petalFall linear infinite; }
+    @keyframes petalFall {
+      0%   { transform: translateY(-40px) rotate(0deg); opacity: 0; }
+      10%  { opacity: 0.35; }
+      90%  { opacity: 0.2; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ── Auth ── */
+    #auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; background: var(--bg); position: relative; z-index: 1; }
+    .auth-card { background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: 56px 48px; max-width: 420px; width: 90%; text-align: center; box-shadow: 0 8px 48px rgba(100,70,20,.13); animation: fadeUp .6s ease; }
+    @keyframes fadeUp { from { opacity:0; transform: translateY(24px); } to { opacity:1; transform: translateY(0); } }
+    .auth-logo { width: 72px; height: 72px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 24px; animation: heartbeat 2s ease infinite; }
+    @keyframes heartbeat { 0%,100%{transform:scale(1)} 14%{transform:scale(1.15)} 28%{transform:scale(1)} 42%{transform:scale(1.08)} 70%{transform:scale(1)} }
     .auth-card h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
     .auth-card p { font-size: 15px; color: var(--muted); line-height: 1.65; margin-bottom: 36px; }
     .btn-google { display: inline-flex; align-items: center; gap: 12px; background: #fff; color: #3c1f0a; border: 1.5px solid var(--border); border-radius: 50px; padding: 13px 28px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all .2s; font-family: 'Plus Jakarta Sans', sans-serif; box-shadow: 0 2px 12px rgba(0,0,0,.08); width: 100%; justify-content: center; }
@@ -35,13 +47,13 @@
     .btn-google svg { width: 22px; height: 22px; flex-shrink: 0; }
     .auth-note { margin-top: 14px; font-size: 12px; color: var(--muted); }
 
-    /* ── App Screen ── */
-    #app-screen { display: none; }
+    /* ── App ── */
+    #app-screen { display: none; position: relative; z-index: 1; }
 
     /* ── Header ── */
-    header { position: sticky; top: 0; z-index: 100; background: rgba(253,248,239,.90); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0 40px; height: 68px; display: flex; align-items: center; justify-content: space-between; }
+    header { position: sticky; top: 0; z-index: 100; background: rgba(253,248,239,.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0 40px; height: 68px; display: flex; align-items: center; justify-content: space-between; }
     .brand { display: flex; align-items: center; gap: 12px; }
-    .brand-icon { width: 38px; height: 38px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .brand-icon { width: 38px; height: 38px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 18px; animation: heartbeat 2.5s ease infinite; }
     .brand h1 { font-family: 'Playfair Display', serif; font-size: 21px; font-weight: 700; color: var(--text); }
     .header-right { display: flex; align-items: center; gap: 12px; }
     .user-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
@@ -51,7 +63,7 @@
     .btn-signout { background: transparent; border: 1px solid var(--border); border-radius: 50px; padding: 7px 14px; font-size: 12px; color: var(--muted); cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: all .15s; }
     .btn-signout:hover { background: var(--border); }
 
-    /* ── Status Bar ── */
+    /* ── Status ── */
     .status-bar { display: flex; align-items: center; gap: 10px; padding: 9px 40px; background: var(--primary-light); border-bottom: 1px solid var(--border); font-size: 13px; color: var(--primary); }
     .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); animation: pulse 1.6s infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
@@ -63,31 +75,134 @@
     .hero p { font-size: 16px; color: var(--muted); line-height: 1.7; }
 
     /* ── Main ── */
-    main { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
-    .section { margin-bottom: 46px; }
-    .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 18px; }
-    .section-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; color: var(--text); }
-    .section-count { font-size: 12px; color: var(--muted); background: var(--primary-light); border-radius: 50px; padding: 2px 10px; }
-    .scroll-row { display: flex; gap: 18px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
-    .scroll-row::-webkit-scrollbar { height: 4px; }
-    .scroll-row::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    main { max-width: 1280px; margin: 0 auto; padding: 0 40px; }
 
-    /* ── Card ── */
-    .card { flex: 0 0 220px; border-radius: var(--radius); overflow: hidden; background: var(--card); border: 1px solid var(--border); box-shadow: var(--shadow); cursor: pointer; transition: transform .25s, box-shadow .25s; position: relative; }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 12px 36px rgba(100,70,20,.16); }
-    .card-thumb { width: 100%; height: 190px; object-fit: cover; display: block; background: var(--primary-light); }
-    .card-placeholder { width: 100%; height: 190px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 36px; }
-    .card-video-thumb { width: 100%; height: 190px; background: linear-gradient(135deg,#3c2a10,#6b4c1e); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: rgba(255,255,255,.8); }
-    .play-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2px solid rgba(255,255,255,.3); }
-    .card-body { padding: 11px 13px 13px; }
-    .card-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
-    .card-date  { font-size: 11px; color: var(--muted); margin-top: 3px; }
-    .card-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; gap: 12px; opacity: 0; transition: opacity .2s; border-radius: var(--radius); }
-    .card:hover .card-overlay { opacity: 1; }
-    .overlay-btn { width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: transform .15s; }
-    .overlay-btn:hover { transform: scale(1.1); }
-    .overlay-view { background: rgba(255,255,255,.9); color: var(--text); }
-    .overlay-del  { background: rgba(192,57,43,.9); color: #fff; }
+    /* ══════════════════════════════════════════
+       SECTION — with poem line + collage
+    ══════════════════════════════════════════ */
+    .section { margin-bottom: 64px; animation: sectionReveal .7s ease both; }
+    @keyframes sectionReveal { from { opacity:0; transform: translateY(32px); } to { opacity:1; transform: translateY(0); } }
+
+    .section-header { margin-bottom: 10px; }
+    .section-meta { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+    .section-emoji { font-size: 26px; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--text); }
+    .section-count { font-size: 12px; color: var(--muted); background: var(--primary-light); border-radius: 50px; padding: 3px 12px; }
+    .section-poem {
+      font-family: 'Dancing Script', cursive;
+      font-size: 17px; color: var(--primary);
+      font-style: italic; margin-bottom: 20px;
+      padding-left: 4px;
+      animation: shimmer 3s ease infinite;
+    }
+    @keyframes shimmer { 0%,100%{opacity:.75} 50%{opacity:1} }
+
+    /* ══════════════════════════════════════════
+       COLLAGE LAYOUTS
+    ══════════════════════════════════════════ */
+    /* 1 photo */
+    .collage-1 { display: grid; grid-template-columns: 1fr; gap: 6px; max-width: 420px; }
+    /* 2 photos */
+    .collage-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-width: 640px; }
+    /* 3 photos — 1 big left, 2 stacked right */
+    .collage-3 { display: grid; grid-template-columns: 1.4fr 1fr; grid-template-rows: 1fr 1fr; gap: 6px; max-width: 700px; }
+    .collage-3 .ci:first-child { grid-row: 1 / 3; }
+    /* 4 photos — 2x2 */
+    .collage-4 { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 6px; max-width: 640px; }
+    /* 5 photos — feature + 4 grid */
+    .collage-5 { display: grid; grid-template-columns: 1.3fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 6px; max-width: 800px; }
+    .collage-5 .ci:first-child { grid-row: 1 / 3; }
+    /* 6+ photos — magazine: 1 big + 5 in 2 rows */
+    .collage-many { display: grid; grid-template-columns: 1.4fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 6px; max-width: 900px; }
+    .collage-many .ci:first-child { grid-row: 1 / 3; }
+
+    /* ── Collage Item ── */
+    .ci {
+      position: relative; overflow: hidden;
+      border-radius: 12px;
+      cursor: pointer;
+      min-height: 180px;
+      box-shadow: 0 3px 16px rgba(100,70,20,.13);
+      border: 3px solid #fff;
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s;
+    }
+    .ci:hover { transform: scale(1.025) rotate(.4deg); box-shadow: 0 12px 36px rgba(100,70,20,.22); z-index: 2; }
+    .ci img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      transition: transform .5s ease;
+    }
+    .ci:hover img { transform: scale(1.06); }
+
+    /* Polaroid frame effect */
+    .ci::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 55%, rgba(44,29,14,.55) 100%);
+      z-index: 1; pointer-events: none;
+    }
+
+    /* Caption on hover */
+    .ci-caption {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 10px 12px 8px;
+      z-index: 2;
+      transform: translateY(4px);
+      transition: transform .3s;
+    }
+    .ci:hover .ci-caption { transform: translateY(0); }
+    .ci-title { font-size: 12px; font-weight: 600; color: #fff; line-height: 1.2; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+    .ci-date  { font-size: 10px; color: rgba(255,255,255,.7); margin-top: 2px; }
+
+    /* Video badge */
+    .ci-video-badge {
+      position: absolute; top: 10px; left: 10px; z-index: 3;
+      background: rgba(0,0,0,.55); color: #fff;
+      border-radius: 20px; padding: 3px 10px 3px 7px;
+      font-size: 11px; font-weight: 600;
+      display: flex; align-items: center; gap: 5px;
+      backdrop-filter: blur(4px);
+    }
+    .ci-video-bg {
+      width: 100%; height: 100%;
+      background: linear-gradient(135deg,#3c2a10,#6b4c1e);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 8px;
+    }
+    .play-circle { width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,.18); border: 2px solid rgba(255,255,255,.4); display: flex; align-items: center; justify-content: center; font-size: 22px; transition: transform .3s, background .3s; }
+    .ci:hover .play-circle { transform: scale(1.15); background: rgba(255,255,255,.28); }
+
+    /* +N more overlay on last visible item */
+    .ci-more-overlay {
+      position: absolute; inset: 0; z-index: 4;
+      background: rgba(44,29,14,.65);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 28px; font-weight: 700; color: #fff;
+      letter-spacing: .5px;
+      backdrop-filter: blur(2px);
+    }
+
+    /* Photo strip for 7+ items below collage */
+    .photo-strip { display: flex; gap: 8px; overflow-x: auto; padding: 10px 2px 4px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+    .photo-strip::-webkit-scrollbar { height: 3px; }
+    .photo-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    .strip-item { flex: 0 0 100px; height: 80px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(100,70,20,.12); transition: transform .2s; position: relative; }
+    .strip-item:hover { transform: translateY(-3px); }
+    .strip-item img { width: 100%; height: 100%; object-fit: cover; }
+    .strip-item .ci-video-badge { top: 4px; left: 4px; font-size: 9px; padding: 2px 6px 2px 4px; }
+
+    /* Delete button on collage item */
+    .ci-del {
+      position: absolute; top: 8px; right: 8px; z-index: 5;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(192,57,43,.85); border: none; color: #fff;
+      font-size: 13px; cursor: pointer;
+      display: none; align-items: center; justify-content: center;
+      transition: transform .15s;
+    }
+    .ci:hover .ci-del { display: flex; }
+    .ci-del:hover { transform: scale(1.15); }
 
     /* ── Empty / Loading ── */
     .empty { max-width: 400px; margin: 60px auto; background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 52px 36px; text-align: center; box-shadow: var(--shadow); }
@@ -103,23 +218,29 @@
     /* ── Upload Modal ── */
     .modal-overlay { display: none; position: fixed; inset: 0; z-index: 998; background: rgba(30,15,5,.55); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
     .modal-overlay.open { display: flex; }
-    .modal { background: var(--card); border-radius: 24px; width: 100%; max-width: 460px; box-shadow: 0 24px 80px rgba(0,0,0,.22); overflow: hidden; animation: slideUp .25s ease; }
+    .modal { background: var(--card); border-radius: 24px; width: 100%; max-width: 500px; box-shadow: 0 24px 80px rgba(0,0,0,.22); overflow: hidden; animation: slideUp .25s ease; }
     @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .modal-header { padding: 26px 26px 0; }
     .modal-header h3 { font-family: 'Playfair Display', serif; font-size: 21px; color: var(--primary); margin-bottom: 5px; }
     .modal-header p  { font-size: 13px; color: var(--muted); }
     .modal-body { padding: 22px 26px; display: flex; flex-direction: column; gap: 18px; }
-    .drop-zone { border: 2px dashed var(--border); border-radius: 14px; height: 175px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; cursor: pointer; transition: all .2s; position: relative; color: var(--muted); }
+    .drop-zone { border: 2px dashed var(--border); border-radius: 14px; height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; cursor: pointer; transition: all .2s; position: relative; color: var(--muted); }
     .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
     .drop-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-    .preview-box { position: relative; height: 175px; border-radius: 14px; overflow: hidden; background: #000; }
-    .preview-box img, .preview-box video { width: 100%; height: 100%; object-fit: cover; }
-    .preview-remove { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,.85); border: none; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    /* Multi-file preview grid */
+    .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; max-height: 200px; overflow-y: auto; }
+    .preview-thumb { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 2px solid var(--border); }
+    .preview-thumb img, .preview-thumb video { width: 100%; height: 100%; object-fit: cover; }
+    .preview-thumb .rm { position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: rgba(192,57,43,.85); border: none; color: #fff; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
     .field { display: flex; flex-direction: column; gap: 5px; }
     .field label { font-size: 12px; font-weight: 500; color: var(--muted); }
     .field input { height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); padding: 0 13px; font-size: 14px; color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; transition: border-color .2s, box-shadow .2s; outline: none; }
     .field input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(184,134,11,.15); }
     .field input::placeholder { color: #bba88a; }
+    .poem-preview { font-family: 'Dancing Script', cursive; font-size: 15px; color: var(--primary); min-height: 22px; transition: all .3s; font-style: italic; padding-left: 2px; }
+
     .modal-footer { padding: 14px 26px 22px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border); background: rgba(245,236,212,.25); }
     .btn-cancel { padding: 9px 18px; border-radius: 50px; border: 1px solid var(--border); background: transparent; font-size: 14px; color: var(--muted); cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: all .15s; }
     .btn-cancel:hover { background: var(--border); }
@@ -127,7 +248,7 @@
     .btn-save:hover:not(:disabled) { background: #a07808; }
     .btn-save:disabled { opacity: .55; cursor: not-allowed; }
 
-    /* ── Progress Overlay ── */
+    /* ── Progress ── */
     .progress-overlay { display: none; position: fixed; inset: 0; z-index: 1001; background: rgba(30,15,5,.65); backdrop-filter: blur(5px); align-items: center; justify-content: center; }
     .progress-overlay.open { display: flex; }
     .progress-box { background: var(--card); border-radius: 22px; padding: 36px; max-width: 340px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
@@ -136,18 +257,26 @@
     .progress-track { height: 8px; background: var(--border); border-radius: 50px; overflow: hidden; margin-bottom: 10px; }
     .progress-fill  { height: 100%; background: linear-gradient(90deg, var(--primary), #e8a800); border-radius: 50px; transition: width .3s ease; width: 0%; }
     .progress-pct   { font-size: 13px; color: var(--primary); font-weight: 600; }
+    .progress-queue { font-size: 11px; color: var(--muted); margin-top: 6px; }
 
     /* ── Lightbox ── */
-    .lightbox-overlay { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,.88); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 20px; }
-    .lightbox-overlay.open { display: flex; }
+    .lightbox-overlay { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,.9); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; }
+    .lightbox-overlay.open { display: flex; animation: lbFadeIn .25s ease; }
+    @keyframes lbFadeIn { from{opacity:0} to{opacity:1} }
     .lightbox-inner { position: relative; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; align-items: center; }
-    .lightbox-media { max-width: 85vw; max-height: 78vh; border-radius: 12px; object-fit: contain; }
+    .lightbox-media { max-width: 85vw; max-height: 78vh; border-radius: 12px; object-fit: contain; animation: lbZoomIn .3s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes lbZoomIn { from{transform:scale(.88);opacity:0} to{transform:scale(1);opacity:1} }
     .lightbox-caption { margin-top: 14px; text-align: center; color: rgba(255,255,255,.9); font-family: 'Playfair Display', serif; font-size: 18px; }
     .lightbox-caption small { display: block; color: rgba(255,255,255,.5); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; margin-top: 4px; }
     .lightbox-close { position: fixed; top: 18px; right: 22px; width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,.15); border: none; color: #fff; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s; }
     .lightbox-close:hover { background: rgba(255,255,255,.28); }
     .lb-loading { color: rgba(255,255,255,.6); font-size: 14px; display: flex; align-items: center; gap: 10px; }
     .lb-spinner { width: 24px; height: 24px; border: 3px solid rgba(255,255,255,.2); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; }
+    /* Nav arrows */
+    .lb-nav { position: fixed; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.15); border: none; color: #fff; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s; z-index: 10; }
+    .lb-nav:hover { background: rgba(255,255,255,.28); }
+    #lb-prev { left: 16px; }
+    #lb-next { right: 16px; }
 
     /* ── Confirm ── */
     .confirm-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.55); backdrop-filter: blur(3px); align-items: center; justify-content: center; }
@@ -164,9 +293,10 @@
     .toast.show { transform: translateX(-50%) translateY(0); }
 
     /* ── FAB ── */
-    .fab { display: none; position: fixed; bottom: 28px; right: 24px; z-index: 90; width: 54px; height: 54px; border-radius: 50%; background: var(--primary); color: #fff; border: none; font-size: 26px; cursor: pointer; box-shadow: 0 6px 24px rgba(184,134,11,.45); align-items: center; justify-content: center; }
+    .fab { display: none; position: fixed; bottom: 28px; right: 24px; z-index: 90; width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: #fff; border: none; font-size: 28px; cursor: pointer; box-shadow: 0 6px 24px rgba(184,134,11,.45); align-items: center; justify-content: center; animation: fabPop .4s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes fabPop { from{transform:scale(0)} to{transform:scale(1)} }
 
-    @media(max-width: 640px) {
+    @media(max-width: 700px) {
       header { padding: 0 18px; }
       .btn-add { display: none; }
       .fab { display: flex; }
@@ -174,24 +304,24 @@
       .hero { padding: 36px 18px 24px; }
       .status-bar { padding: 8px 18px; }
       .user-name { display: none; }
+      .collage-3, .collage-5, .collage-many { grid-template-columns: 1fr 1fr; }
+      .collage-3 .ci:first-child, .collage-5 .ci:first-child, .collage-many .ci:first-child { grid-row: auto; }
     }
   </style>
 </head>
 <body>
+
+<!-- Floating petals -->
+<div class="petals" id="petals"></div>
 
 <!-- ── AUTH SCREEN ── -->
 <div id="auth-screen">
   <div class="auth-card">
     <div class="auth-logo">&#128149;</div>
     <h1>Little Moments, Big Memories</h1>
-    <p>Apne bete ki pyaari yaadein — Google Drive mein surakshit. Kahin se bhi dekho, kabhi bhi.</p>
+    <p>Apne bete ki pyaari yaadein — Google Drive mein surakshit.<br>Kahin se bhi dekho, kabhi bhi.</p>
     <button class="btn-google" onclick="signIn()">
-      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-        <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
-        <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
-        <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
-        <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
-      </svg>
+      <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
       Google se Sign In karo
     </button>
     <p class="auth-note">&#128274; Aapka data sirf aapke Drive mein save hota hai</p>
@@ -212,21 +342,17 @@
       <button class="btn-signout" onclick="signOut()">Sign Out</button>
     </div>
   </header>
-
   <div class="status-bar" id="status-bar" style="display:none">
     <div class="status-dot"></div>
     <span id="status-text">Sync ho raha hai...</span>
   </div>
-
   <div class="hero">
     <h2>Pal Jo <em>Hamesha Saath Rahenge.</em></h2>
-    <p>Har muskaan, har pal — Google Drive mein hamesha ke liye surakshit.</p>
+    <p>Har muskaan, har qadam — in tasveeronon mein hamesha ke liye surakshit.</p>
   </div>
-
   <main id="main-content">
     <div class="loading-wrap"><div class="spinner"></div><span>Drive se memories la raha hoon...</span></div>
   </main>
-
   <button class="fab" onclick="openUpload()">&#43;</button>
 </div>
 
@@ -234,29 +360,33 @@
 <div class="modal-overlay" id="upload-modal" onclick="handleOverlayClick(event)">
   <div class="modal">
     <div class="modal-header">
-      <h3>Nayi yaad add karo</h3>
-      <p>Photo ya video Drive mein save hogi — kahin se bhi dekh sako.</p>
+      <h3>Nayi yaadein add karo</h3>
+      <p>Ek saath kai photos ya videos upload karo — sab ek hi category mein save hongi.</p>
     </div>
     <div class="modal-body">
       <div id="drop-zone" class="drop-zone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-        <input type="file" id="file-input" accept="image/*,video/*" onchange="handleFileSelect(event)" />
+        <input type="file" id="file-input" accept="image/*,video/*" multiple onchange="handleFileSelect(event)" />
         <div style="font-size:30px">&#128247;</div>
-        <div style="font-size:13px;font-weight:500">Photo ya video chunein</div>
+        <div style="font-size:13px;font-weight:500">Photos / Videos chunein (multiple)</div>
         <div style="font-size:11px">Ya yahan drag karein</div>
       </div>
-      <div id="preview-container" style="display:none"></div>
-      <div class="field">
-        <label>Ye pal kya hai?</label>
-        <input type="text" id="mem-title" placeholder="Jaise: Garden mein pehle qadam" oninput="checkSaveBtn()" />
+      <div id="preview-grid-wrap" style="display:none">
+        <div class="preview-grid" id="preview-grid"></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px" id="file-count-label"></div>
       </div>
       <div class="field">
-        <label>Category</label>
-        <input type="text" id="mem-category" placeholder="Jaise: Birthday, School, Function" oninput="checkSaveBtn()" />
+        <label>Category (sabhi photos ke liye)</label>
+        <input type="text" id="mem-category" placeholder="Jaise: Birthday, Chhathi, School" oninput="onFieldChange()" />
       </div>
+      <div class="field">
+        <label>Ye pal kya hai? (optional — collage ka sheersh)</label>
+        <input type="text" id="mem-title" placeholder="Jaise: Pehle din ki muskaan" oninput="onFieldChange()" />
+      </div>
+      <div class="poem-preview" id="poem-preview"></div>
     </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeUpload()">Rahne do</button>
-      <button class="btn-save" id="btn-save" onclick="saveMemory()" disabled>Drive mein save karo</button>
+      <button class="btn-save" id="btn-save" onclick="saveMemories()" disabled>Drive mein save karo</button>
     </div>
   </div>
 </div>
@@ -265,15 +395,18 @@
 <div class="progress-overlay" id="progress-overlay">
   <div class="progress-box">
     <h4>&#128190; Drive mein save ho raha hai...</h4>
-    <p id="progress-label">File tayaar ho rahi hai...</p>
+    <p id="progress-label">Tayaar ho raha hai...</p>
     <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
     <div class="progress-pct" id="progress-pct">0%</div>
+    <div class="progress-queue" id="progress-queue"></div>
   </div>
 </div>
 
 <!-- ── LIGHTBOX ── -->
-<div class="lightbox-overlay" id="lightbox" onclick="closeLightbox(event)">
-  <button class="lightbox-close" onclick="closeLightbox(null,true)">&#10005;</button>
+<div class="lightbox-overlay" id="lightbox" onclick="closeLightboxClick(event)">
+  <button class="lightbox-close" onclick="closeLightbox()">&#10005;</button>
+  <button class="lb-nav" id="lb-prev" onclick="lbNav(-1)">&#8249;</button>
+  <button class="lb-nav" id="lb-next" onclick="lbNav(+1)">&#8250;</button>
   <div class="lightbox-inner">
     <div id="lightbox-media-wrap"></div>
     <div class="lightbox-caption">
@@ -306,533 +439,490 @@ const TOKEN_KEY = 'gd_mem_token';
 const TOKEN_EXP = 'gd_mem_token_exp';
 const USER_KEY  = 'gd_mem_user';
 
-// ── STATE ─────────────────────────────────────────────────────────────
-let accessToken     = null;
-let memories        = [];
-let selectedFile    = null;
-let selectedPreviewUrl = null;
-let pendingDeleteId = null;
-let tokenClient     = null;
+// ── CATEGORY METADATA ─────────────────────────────────────────────────
+const CAT_META = {
+  'birthday':   { emoji:'🎂', poem:'Har saal ek naya adhyay, har pal ek naya ujaala...' },
+  'chhathi':    { emoji:'🪔', poem:'Chhathi ki raat, khushiyon ki baaraat...' },
+  'born':       { emoji:'👶', poem:'Jab tum aaye, duniya roshan ho gayi...' },
+  'school':     { emoji:'📚', poem:'Gyan ka safar shuru hua, ek nanha kadam age badha...' },
+  'function':   { emoji:'✨', poem:'Khushiyon ke rang bikhere, mil ke sab ne gaye...' },
+  'hospital':   { emoji:'🏥', poem:'Zindagi ka pehla din, aankhon mein pehli roshni...' },
+  'first':      { emoji:'⭐', poem:'Pehli baar ka ye jadoo, dil mein hamesha rahega...' },
+  'vacation':   { emoji:'🌿', poem:'Nayi jagah, nayi kahani, nayi muskaan...' },
+  'festival':   { emoji:'🎉', poem:'Tyohaar ki raunak, tum se aur bhi nirali...' },
+  'home':       { emoji:'🏠', poem:'Ghar ki deewarein bhi muskurati hain tum se...' },
+  'garden':     { emoji:'🌸', poem:'Phoolon ke beech, ek phool aur khila...' },
+  'food':       { emoji:'🍱', poem:'Chhote haath, badi bhookh, aur badi masti...' },
+  'play':       { emoji:'🎈', poem:'Khelta raha tu khul ke, hum dekhte rahe muskura ke...' },
+  'default':    { emoji:'📸', poem:'Ye pal, ye khushi — hamesha yaad rahegi...' },
+};
 
-// ── AUTH — Token Persistence ───────────────────────────────────────────
-// Google token lasts ~1 hour. We store it in sessionStorage so refresh
-// doesn't need re-login within the same tab session.
-// For cross-tab persistence we also try localStorage with expiry check.
-
-function saveToken(token) {
-  const exp = Date.now() + 55 * 60 * 1000; // 55 min (token lasts 60)
-  try {
-    sessionStorage.setItem(TOKEN_KEY, token);
-    localStorage.setItem(TOKEN_KEY, token);
-    localStorage.setItem(TOKEN_EXP, String(exp));
-  } catch(e) {}
+function getCatMeta(category) {
+  if (!category) return CAT_META['default'];
+  const k = category.toLowerCase();
+  for (const [key, val] of Object.entries(CAT_META)) {
+    if (k.includes(key)) return val;
+  }
+  return CAT_META['default'];
 }
 
+// ── STATE ─────────────────────────────────────────────────────────────
+let accessToken = null;
+let memories    = [];
+let selectedFiles = [];
+let pendingDeleteId = null;
+let tokenClient = null;
+let lbCurrentId = null;
+let lbCurrentList = [];
+
+// ── PETALS ────────────────────────────────────────────────────────────
+(function spawnPetals() {
+  const wrap = document.getElementById('petals');
+  const emojis = ['🌸','🌼','✨','🍀','💛','🌺'];
+  for (let i = 0; i < 14; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    p.style.left = (Math.random() * 100) + 'vw';
+    p.style.fontSize = (12 + Math.random() * 14) + 'px';
+    const dur = 12 + Math.random() * 16;
+    const delay = Math.random() * -20;
+    p.style.animation = `petalFall ${dur}s ${delay}s linear infinite`;
+    wrap.appendChild(p);
+  }
+})();
+
+// ── AUTH ──────────────────────────────────────────────────────────────
+function saveToken(t) {
+  const exp = Date.now() + 55 * 60 * 1000;
+  try { sessionStorage.setItem(TOKEN_KEY,t); localStorage.setItem(TOKEN_KEY,t); localStorage.setItem(TOKEN_EXP,String(exp)); } catch{}
+}
 function loadSavedToken() {
   try {
-    // Prefer sessionStorage (same tab refresh)
-    const sess = sessionStorage.getItem(TOKEN_KEY);
-    if (sess) return sess;
-    // Then localStorage with expiry
-    const exp = Number(localStorage.getItem(TOKEN_EXP) || 0);
-    if (Date.now() < exp) return localStorage.getItem(TOKEN_KEY);
-  } catch(e) {}
+    const s = sessionStorage.getItem(TOKEN_KEY); if(s) return s;
+    const exp = Number(localStorage.getItem(TOKEN_EXP)||0);
+    if(Date.now()<exp) return localStorage.getItem(TOKEN_KEY);
+  } catch{}
   return null;
 }
+function clearToken() { try{sessionStorage.removeItem(TOKEN_KEY);localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(TOKEN_EXP);localStorage.removeItem(USER_KEY);}catch{} }
+function saveUser(u)  { try{localStorage.setItem(USER_KEY,JSON.stringify(u));}catch{} }
+function loadSavedUser() { try{return JSON.parse(localStorage.getItem(USER_KEY)||'null');}catch{return null;} }
 
-function clearToken() {
-  try {
-    sessionStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(TOKEN_EXP);
-    localStorage.removeItem(USER_KEY);
-  } catch(e) {}
-}
-
-function saveUser(info) {
-  try { localStorage.setItem(USER_KEY, JSON.stringify(info)); } catch(e) {}
-}
-
-function loadSavedUser() {
-  try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null'); } catch(e) { return null; } 
-}
-
-// On page load — try restoring session silently
 window.addEventListener('load', () => {
   const saved = loadSavedToken();
   if (saved) {
     accessToken = saved;
-    // Show app immediately with cached user info
-    const user = loadSavedUser();
-    if (user) applyUserInfo(user);
+    const u = loadSavedUser(); if(u) applyUserInfo(u);
     showApp();
-    // Validate token by loading files; if 401 → re-auth
     loadFiles().catch(() => { clearToken(); showAuth(); });
   }
-  // Pre-init token client so sign-in is instant
   initTokenClient();
 });
 
 function initTokenClient() {
-  // Wait for GIS library to load
-  if (typeof google === 'undefined' || !google.accounts) {
-    setTimeout(initTokenClient, 200);
-    return;
-  }
+  if (typeof google === 'undefined' || !google.accounts) { setTimeout(initTokenClient, 200); return; }
   tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    prompt: '',           // no consent screen if already granted
+    client_id: CLIENT_ID, scope: SCOPES, prompt: '',
     callback: async (resp) => {
       if (resp.error) { showToast('Sign in fail hua: ' + resp.error); return; }
-      accessToken = resp.access_token;
-      saveToken(accessToken);
-      const info = await fetchUserInfo();
-      if (info) saveUser(info);
-      showApp();
-      loadFiles();
+      accessToken = resp.access_token; saveToken(accessToken);
+      const info = await fetchUserInfo(); if(info) saveUser(info);
+      showApp(); loadFiles();
     }
   });
 }
 
 function signIn() {
-  if (!tokenClient) { showToast('Please wait...'); initTokenClient(); setTimeout(signIn, 500); return; }
-  // If we already have a token, skip consent screen
+  if (!tokenClient) { setTimeout(signIn, 300); return; }
   tokenClient.requestAccessToken({ prompt: accessToken ? '' : 'consent' });
 }
-
 function signOut() {
-  if (accessToken) {
-    try { google.accounts.oauth2.revoke(accessToken, () => {}); } catch(e) {}
-  }
-  accessToken = null;
-  memories    = [];
-  clearToken();
-  showAuth();
+  if(accessToken) try{google.accounts.oauth2.revoke(accessToken,()=>{});}catch{}
+  accessToken=null; memories=[]; clearToken(); showAuth();
 }
-
-function showApp() {
-  document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('app-screen').style.display  = 'block';
-}
-function showAuth() {
-  document.getElementById('app-screen').style.display  = 'none';
-  document.getElementById('auth-screen').style.display = 'flex';
-}
-
+function showApp()  { document.getElementById('auth-screen').style.display='none';  document.getElementById('app-screen').style.display='block'; }
+function showAuth() { document.getElementById('app-screen').style.display='none';   document.getElementById('auth-screen').style.display='flex'; }
 function applyUserInfo(info) {
-  document.getElementById('user-name').textContent = info.name || '';
-  const avatar = document.getElementById('user-avatar');
-  if (info.picture) { avatar.src = info.picture; avatar.style.display = 'block'; }
+  document.getElementById('user-name').textContent=info.name||'';
+  const av=document.getElementById('user-avatar');
+  if(info.picture){av.src=info.picture;av.style.display='block';}
 }
-
 async function fetchUserInfo() {
-  try {
-    const res  = await gFetch('https://www.googleapis.com/oauth2/v3/userinfo');
-    if (!res.ok) return null;
-    const info = await res.json();
-    applyUserInfo(info);
-    return info;
-  } catch { return null; }
+  try { const r=await gFetch('https://www.googleapis.com/oauth2/v3/userinfo'); if(!r.ok)return null; const i=await r.json(); applyUserInfo(i); return i; } catch{return null;}
 }
 
-// ── DRIVE HELPERS ──────────────────────────────────────────────────────
-function gFetch(url, opts = {}) {
-  opts.headers = Object.assign({ 'Authorization': 'Bearer ' + accessToken }, opts.headers || {});
-  return fetch(url, opts);
+// ── DRIVE ─────────────────────────────────────────────────────────────
+function gFetch(url, opts={}) {
+  opts.headers=Object.assign({'Authorization':'Bearer '+accessToken},opts.headers||{});
+  return fetch(url,opts);
 }
-
-// Token expiry auto-refresh: if we get 401, silently get new token then retry
-async function gFetchWithRetry(url, opts = {}) {
-  let res = await gFetch(url, opts);
-  if (res.status === 401 && tokenClient) {
-    // Token expired — get fresh one silently
-    await new Promise((resolve) => {
-      const prev = tokenClient.callback;
-      tokenClient.callback = (r) => {
-        if (!r.error) { accessToken = r.access_token; saveToken(accessToken); }
-        tokenClient.callback = prev;
-        resolve();
-      };
-      tokenClient.requestAccessToken({ prompt: '' });
+async function gFetchR(url, opts={}) {
+  let r=await gFetch(url,opts);
+  if(r.status===401 && tokenClient) {
+    await new Promise(res=>{
+      const prev=tokenClient.callback;
+      tokenClient.callback=(resp)=>{ if(!resp.error){accessToken=resp.access_token;saveToken(accessToken);} tokenClient.callback=prev; res(); };
+      tokenClient.requestAccessToken({prompt:''});
     });
-    res = await gFetch(url, opts);
+    r=await gFetch(url,opts);
   }
-  return res;
+  return r;
 }
 
-// ── LOAD FILES ────────────────────────────────────────────────────────
 async function loadFiles() {
   showStatus('Drive se memories la raha hoon...');
-  const q      = encodeURIComponent(`'${FOLDER_ID}' in parents and trashed=false`);
-  const fields = encodeURIComponent('files(id,name,mimeType,createdTime,description,thumbnailLink,webContentLink,webViewLink)');
-  const res    = await gFetchWithRetry(
-    `https://www.googleapis.com/drive/v3/files?q=${q}&fields=${fields}&orderBy=createdTime+desc&pageSize=200`
-  );
-  if (!res.ok) {
-    if (res.status === 401) { clearToken(); showAuth(); throw new Error('Unauthorized'); }
-    throw new Error('Load fail');
-  }
-  const data = await res.json();
-  memories = (data.files || []).map(parseFileMeta);
-  hideStatus();
-  render();
+  const q=encodeURIComponent(`'${FOLDER_ID}' in parents and trashed=false`);
+  const fields=encodeURIComponent('files(id,name,mimeType,createdTime,description,thumbnailLink,webContentLink,webViewLink)');
+  const r=await gFetchR(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=${fields}&orderBy=createdTime+desc&pageSize=500`);
+  if(!r.ok){if(r.status===401){clearToken();showAuth();throw new Error('Unauthorized');} throw new Error('Load fail');}
+  const data=await r.json();
+  memories=(data.files||[]).map(parseFileMeta);
+  hideStatus(); render();
 }
 
 function parseFileMeta(f) {
-  let meta = {};
-  try { meta = JSON.parse(f.description || '{}'); } catch {}
-  const isVideo = (f.mimeType || '').startsWith('video/');
+  let meta={}; try{meta=JSON.parse(f.description||'{}');}catch{}
+  const isVideo=(f.mimeType||'').startsWith('video/');
   return {
-    id:            f.id,
-    title:         meta.title    || f.name.replace(/\.[^.]+$/, ''),
-    category:      meta.category || 'Bina Category',
-    mediaType:     isVideo ? 'video' : 'image',
-    mimeType:      f.mimeType,
-    thumbnailLink: f.thumbnailLink || '',
-    webContentLink: f.webContentLink || '',
-    webViewLink:   f.webViewLink || '',
-    createdAt:     f.createdTime || new Date().toISOString(),
+    id:f.id, title:meta.title||f.name.replace(/\.[^.]+$/,''),
+    category:meta.category||'Bina Category',
+    mediaType:isVideo?'video':'image', mimeType:f.mimeType,
+    thumbnailLink:f.thumbnailLink||'', webContentLink:f.webContentLink||'',
+    webViewLink:f.webViewLink||'', createdAt:f.createdTime||new Date().toISOString(),
   };
 }
 
 // ── UPLOAD ────────────────────────────────────────────────────────────
-async function uploadFile(file, title, category) {
-  const description = JSON.stringify({ title, category, uploadedAt: new Date().toISOString() });
-  const ext  = (file.name.match(/\.[^.]+$/) || [''])[0];
-  const name = title.replace(/[^\w\u0900-\u097F ]/g, '_').trim() + '_' + Date.now() + ext;
-  const fileMeta = { name, mimeType: file.type, description, parents: [FOLDER_ID] };
+async function uploadSingleFile(file, title, category, idx, total) {
+  const description=JSON.stringify({title,category,uploadedAt:new Date().toISOString()});
+  const ext=(file.name.match(/\.[^.]+$/)||[''])[0];
+  const name=title.replace(/[^\w\u0900-\u097F ]/g,'_').trim()+'_'+Date.now()+ext;
+  const fileMeta={name,mimeType:file.type,description,parents:[FOLDER_ID]};
 
-  // Small files (< 5MB): simple multipart
-  if (file.size < 5 * 1024 * 1024) {
-    setProgress(true, 'Drive mein bhej raha hai...', 40);
-    const meta = new Blob([JSON.stringify(fileMeta)], { type: 'application/json' });
-    const form = new FormData();
-    form.append('metadata', meta);
-    form.append('file', file);
-
-    const res = await gFetchWithRetry(
-      'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,createdTime,description,thumbnailLink,webContentLink,webViewLink',
-      { method: 'POST', body: form }
-    );
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err?.error?.message || 'Upload fail hua');
-    }
-    setProgress(true, 'Save ho gayi! ❤️', 100);
-    await new Promise(r => setTimeout(r, 500));
-    setProgress(false);
-    return parseFileMeta(await res.json());
+  if(file.size < 5*1024*1024) {
+    document.getElementById('progress-queue').textContent=`File ${idx} / ${total}`;
+    setProgress(true,`"${title}" upload ho raha hai...`,20);
+    const meta=new Blob([JSON.stringify(fileMeta)],{type:'application/json'});
+    const form=new FormData(); form.append('metadata',meta); form.append('file',file);
+    const r=await gFetchR('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,createdTime,description,thumbnailLink,webContentLink,webViewLink',{method:'POST',body:form});
+    if(!r.ok){const e=await r.json().catch(()=>({})); throw new Error(e?.error?.message||'Upload fail');}
+    setProgress(true,'Save ho gayi! ❤️',100);
+    return parseFileMeta(await r.json());
   }
 
-  // Large files: resumable XHR upload with real progress
-  setProgress(true, 'Badi file prepare ho rahi hai...', 5);
+  // Large file — resumable with XHR progress
+  const initR=await gFetchR('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id,name,mimeType,createdTime,description,thumbnailLink,webContentLink,webViewLink',{method:'POST',headers:{'Content-Type':'application/json','X-Upload-Content-Type':file.type,'X-Upload-Content-Length':file.size},body:JSON.stringify(fileMeta)});
+  if(!initR.ok) throw new Error('Upload shuru nahi hua');
+  const uploadUrl=initR.headers.get('Location');
+  if(!uploadUrl) throw new Error('Upload URL nahi mila');
 
-  // Step 1: initiate resumable session
-  const initRes = await gFetchWithRetry(
-    'https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id,name,mimeType,createdTime,description,thumbnailLink,webContentLink,webViewLink',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Upload-Content-Type': file.type, 'X-Upload-Content-Length': file.size },
-      body: JSON.stringify(fileMeta)
-    }
-  );
-  if (!initRes.ok) throw new Error('Upload shuru nahi hua');
-  const uploadUrl = initRes.headers.get('Location');
-  if (!uploadUrl) throw new Error('Upload URL nahi mila');
-
-  // Step 2: XHR upload with progress events (fetch doesn't support upload progress)
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('PUT', uploadUrl);
-    xhr.setRequestHeader('Content-Type', file.type);
-
-    xhr.upload.onprogress = (e) => {
-      if (!e.lengthComputable) return;
-      const pct  = Math.round((e.loaded / e.total) * 95) + 3;
-      const done = (e.loaded / (1024 * 1024)).toFixed(1);
-      const total = (e.total / (1024 * 1024)).toFixed(1);
-      setProgress(true, `Upload ho raha hai — ${done} MB / ${total} MB`, pct);
+  return new Promise((resolve,reject)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open('PUT',uploadUrl);
+    xhr.setRequestHeader('Content-Type',file.type);
+    xhr.upload.onprogress=(e)=>{
+      if(!e.lengthComputable)return;
+      const pct=Math.round((e.loaded/e.total)*92)+4;
+      const done=(e.loaded/(1024*1024)).toFixed(1), tot=(e.total/(1024*1024)).toFixed(1);
+      setProgress(true,`${done} MB / ${tot} MB upload ho raha hai...`,pct);
+      document.getElementById('progress-queue').textContent=`File ${idx} / ${total}`;
     };
-
-    xhr.onload = async () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        setProgress(true, 'Save ho gayi! ❤️', 100);
-        await new Promise(r => setTimeout(r, 500));
-        setProgress(false);
-        try { resolve(parseFileMeta(JSON.parse(xhr.responseText))); }
-        catch(e) { reject(new Error('Response parse fail')); }
-      } else {
-        reject(new Error('Upload fail: ' + xhr.status));
-      }
+    xhr.onload=async()=>{
+      if(xhr.status>=200&&xhr.status<300){
+        setProgress(true,'Save ho gayi! ❤️',100);
+        await new Promise(r=>setTimeout(r,300));
+        try{resolve(parseFileMeta(JSON.parse(xhr.responseText)));}catch(e){reject(new Error('Parse fail'));}
+      } else reject(new Error('Upload fail: '+xhr.status));
     };
-    xhr.onerror = () => reject(new Error('Network error'));
+    xhr.onerror=()=>reject(new Error('Network error'));
     xhr.send(file);
   });
 }
 
-function setProgress(open, label, pct) {
-  const el = document.getElementById('progress-overlay');
-  if (open) {
+function setProgress(open,label,pct) {
+  const el=document.getElementById('progress-overlay');
+  if(open){
     el.classList.add('open');
-    document.getElementById('progress-label').textContent = label || '';
-    const w = (pct || 0) + '%';
-    document.getElementById('progress-fill').style.width = w;
-    document.getElementById('progress-pct').textContent  = w;
+    document.getElementById('progress-label').textContent=label||'';
+    const w=(pct||0)+'%';
+    document.getElementById('progress-fill').style.width=w;
+    document.getElementById('progress-pct').textContent=w;
   } else {
     el.classList.remove('open');
-    document.getElementById('progress-fill').style.width = '0%';
-    document.getElementById('progress-pct').textContent  = '0%';
+    document.getElementById('progress-fill').style.width='0%';
+    document.getElementById('progress-pct').textContent='0%';
+    document.getElementById('progress-queue').textContent='';
   }
 }
 
-// ── DELETE ────────────────────────────────────────────────────────────
 async function deleteFile(id) {
-  const res = await gFetchWithRetry(`https://www.googleapis.com/drive/v3/files/${id}`, { method: 'DELETE' });
-  if (!res.ok && res.status !== 204) throw new Error('Delete fail');
+  const r=await gFetchR(`https://www.googleapis.com/drive/v3/files/${id}`,{method:'DELETE'});
+  if(!r.ok&&r.status!==204) throw new Error('Delete fail');
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────
 function render() {
-  const container = document.getElementById('main-content');
-  if (memories.length === 0) {
-    container.innerHTML = `
-      <div class="empty">
-        <div class="empty-icon">&#10024;</div>
-        <h3>Album khali hai</h3>
-        <p>Pehli yaad add karo — ye Drive mein save hogi aur sabhi devices se dikh sakti hai.</p>
-        <button class="btn-first" onclick="openUpload()">&#43; Pehli yaad add karo</button>
-      </div>`;
+  const container=document.getElementById('main-content');
+  if(!memories.length){
+    container.innerHTML=`<div class="empty"><div class="empty-icon">✨</div><h3>Album khali hai</h3><p>Pehli yaad add karo — ye Drive mein save hogi.</p><button class="btn-first" onclick="openUpload()">+ Pehli yaad add karo</button></div>`;
     return;
   }
-  const groups = {};
-  for (const m of memories) {
-    if (!groups[m.category]) groups[m.category] = [];
-    groups[m.category].push(m);
-  }
-  let html = '';
-  for (const [cat, items] of Object.entries(groups).sort()) {
-    html += `<div class="section">
+  const groups={};
+  for(const m of memories){if(!groups[m.category])groups[m.category]=[]; groups[m.category].push(m);}
+
+  let html='';
+  let secIdx=0;
+  for(const [cat,items] of Object.entries(groups).sort()){
+    const meta=getCatMeta(cat);
+    const delay=(secIdx*0.12)+'s';
+    html+=`<div class="section" style="animation-delay:${delay}">
       <div class="section-header">
-        <span class="section-title">${esc(cat)}</span>
-        <span class="section-count">${items.length} ${items.length === 1 ? 'yaad' : 'yaadein'}</span>
+        <div class="section-meta">
+          <span class="section-emoji">${meta.emoji}</span>
+          <span class="section-title">${esc(cat)}</span>
+          <span class="section-count">${items.length} ${items.length===1?'yaad':'yaadein'}</span>
+        </div>
+        <div class="section-poem">${meta.poem}</div>
       </div>
-      <div class="scroll-row">${items.map(cardHtml).join('')}</div>
+      ${renderCollage(items)}
     </div>`;
+    secIdx++;
   }
-  container.innerHTML = html;
+  container.innerHTML=html;
 }
 
-function cardHtml(m) {
-  const date = new Date(m.createdAt).toLocaleDateString('hi-IN', { day:'numeric', month:'short', year:'numeric' });
-  let thumb;
-  if (m.mediaType === 'video') {
-    thumb = `<div class="card-video-thumb"><div class="play-icon">&#9654;</div><span style="font-size:11px;text-align:center;padding:0 8px">${esc(m.title)}</span></div>`;
-  } else if (m.thumbnailLink) {
-    thumb = `<img class="card-thumb" src="${m.thumbnailLink.replace('=s220','=s400')}" alt="${esc(m.title)}" loading="lazy" />`;
-  } else {
-    thumb = `<div class="card-placeholder">&#128247;</div>`;
+function renderCollage(items) {
+  const MAX_COLLAGE=6;
+  const main=items.slice(0,MAX_COLLAGE);
+  const rest=items.slice(MAX_COLLAGE);
+  const n=main.length;
+
+  let cls='collage-'+Math.min(n,6);
+  if(n>6) cls='collage-many';
+
+  let inner='';
+  main.forEach((m,i)=>{
+    const isLast=i===MAX_COLLAGE-1 && rest.length>0;
+    const extra=isLast ? `<div class="ci-more-overlay">+${rest.length+1}</div>` : '';
+    inner+=ciHtml(m,extra,i);
+  });
+
+  let strip='';
+  if(rest.length>0){
+    strip='<div class="photo-strip">';
+    for(const m of rest){
+      const date=new Date(m.createdAt).toLocaleDateString('hi-IN',{day:'numeric',month:'short'});
+      if(m.mediaType==='video'){
+        strip+=`<div class="strip-item" data-view="${m.id}"><div class="ci-video-bg" style="border-radius:6px"><div class="play-circle" style="width:32px;height:32px;font-size:13px">▶</div></div><div class="ci-video-badge">▶ Video</div></div>`;
+      } else {
+        strip+=`<div class="strip-item" data-view="${m.id}"><img src="${m.thumbnailLink.replace('=s220','=s200')}" alt="" loading="lazy" onerror="this.style.display='none'"/></div>`;
+      }
+    }
+    strip+='</div>';
   }
-  // Use data attributes — no inline string escaping issues
-  return `<div class="card" data-id="${m.id}">
-    ${thumb}
-    <div class="card-body">
-      <div class="card-title">${esc(m.title)}</div>
-      <div class="card-date">${date}</div>
+
+  return `<div class="${cls}">${inner}</div>${strip}`;
+}
+
+function ciHtml(m, extraOverlay='', idx=0) {
+  const date=new Date(m.createdAt).toLocaleDateString('hi-IN',{day:'numeric',month:'short',year:'numeric'});
+  const delay=(idx*0.08)+'s';
+  let media;
+  if(m.mediaType==='video'){
+    media=`<div class="ci-video-bg"><div class="play-circle">▶</div></div><div class="ci-video-badge">▶ Video</div>`;
+  } else if(m.thumbnailLink){
+    media=`<img src="${m.thumbnailLink.replace('=s220','=s600')}" alt="" loading="lazy" onerror="this.style.display='none'"/>`;
+  } else {
+    media=`<div class="ci-video-bg"><div style="font-size:32px">📷</div></div>`;
+  }
+  return `<div class="ci" data-view="${m.id}" style="animation:sectionReveal .5s ${delay} ease both">
+    ${media}
+    ${extraOverlay}
+    <div class="ci-caption">
+      <div class="ci-title">${esc(m.title)}</div>
+      <div class="ci-date">${date}</div>
     </div>
-    <div class="card-overlay">
-      <button class="overlay-btn overlay-view" title="Dekho" data-view="${m.id}">&#128269;</button>
-      <button class="overlay-btn overlay-del"  title="Mita do" data-del="${m.id}">&#128465;</button>
-    </div>
+    <button class="ci-del" data-del="${m.id}" title="Delete">✕</button>
   </div>`;
 }
 
-// Delegated card click — handles view + delete buttons safely
-document.addEventListener('click', function(e) {
-  const viewBtn = e.target.closest('[data-view]');
-  const delBtn  = e.target.closest('[data-del]');
-  if (viewBtn) { e.stopPropagation(); openLightbox(viewBtn.dataset.view); return; }
-  if (delBtn)  { e.stopPropagation(); confirmDelete(delBtn.dataset.del);  return; }
+// Delegated clicks
+document.addEventListener('click',function(e){
+  const view=e.target.closest('[data-view]');
+  const del =e.target.closest('[data-del]');
+  if(del){ e.stopPropagation(); confirmDelete(del.dataset.del); return; }
+  if(view){ e.stopPropagation(); openLightbox(view.dataset.view); return; }
 });
 
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 // ── UPLOAD MODAL ──────────────────────────────────────────────────────
 function openUpload() {
   document.getElementById('upload-modal').classList.add('open');
-  document.getElementById('mem-title').value    = '';
-  document.getElementById('mem-category').value = '';
-  clearSelection();
+  document.getElementById('mem-title').value='';
+  document.getElementById('mem-category').value='';
+  document.getElementById('poem-preview').textContent='';
+  clearSelection(); checkSaveBtn();
+}
+function closeUpload(){ document.getElementById('upload-modal').classList.remove('open'); clearSelection(); }
+function handleOverlayClick(e){ if(e.target===e.currentTarget) closeUpload(); }
+
+function clearSelection(){
+  selectedFiles=[];
+  document.getElementById('drop-zone').style.display='flex';
+  document.getElementById('preview-grid-wrap').style.display='none';
+  document.getElementById('preview-grid').innerHTML='';
+  document.getElementById('file-input').value='';
+  document.getElementById('file-count-label').textContent='';
+}
+
+function handleFileSelect(e){ setFiles([...e.target.files]); }
+function handleDrop(e){
+  e.preventDefault(); document.getElementById('drop-zone').classList.remove('dragover');
+  const files=[...e.dataTransfer.files].filter(f=>f.type.startsWith('image/')||f.type.startsWith('video/'));
+  if(files.length) setFiles(files);
+}
+function handleDragOver(e){ e.preventDefault(); document.getElementById('drop-zone').classList.add('dragover'); }
+function handleDragLeave(){ document.getElementById('drop-zone').classList.remove('dragover'); }
+
+function setFiles(files){
+  selectedFiles=files;
+  const grid=document.getElementById('preview-grid');
+  grid.innerHTML='';
+  files.forEach((f,i)=>{
+    const url=URL.createObjectURL(f);
+    const isVid=f.type.startsWith('video/');
+    const div=document.createElement('div'); div.className='preview-thumb';
+    const el=document.createElement(isVid?'video':'img');
+    el.src=url; if(isVid){el.muted=true;}
+    const rm=document.createElement('button'); rm.className='rm'; rm.textContent='✕';
+    rm.onclick=()=>{ selectedFiles=selectedFiles.filter((_,j)=>j!==i); setFiles(selectedFiles); };
+    div.appendChild(el); div.appendChild(rm); grid.appendChild(div);
+  });
+  document.getElementById('drop-zone').style.display='none';
+  document.getElementById('preview-grid-wrap').style.display='block';
+  document.getElementById('file-count-label').textContent=files.length+' file'+(files.length>1?'s':'')+' chuni gayi';
   checkSaveBtn();
 }
 
-function closeUpload() {
-  document.getElementById('upload-modal').classList.remove('open');
-  clearSelection();
-}
-
-function handleOverlayClick(e) { if (e.target === e.currentTarget) closeUpload(); }
-
-function clearSelection() {
-  selectedFile = null;
-  if (selectedPreviewUrl) { URL.revokeObjectURL(selectedPreviewUrl); selectedPreviewUrl = null; }
-  document.getElementById('drop-zone').style.display         = 'flex';
-  document.getElementById('preview-container').style.display = 'none';
-  document.getElementById('preview-container').innerHTML     = '';
-  document.getElementById('file-input').value                = '';
-}
-
-function handleFileSelect(e) { const f = e.target.files?.[0]; if (f) setFile(f); }
-
-function handleDrop(e) {
-  e.preventDefault();
-  document.getElementById('drop-zone').classList.remove('dragover');
-  const f = e.dataTransfer.files?.[0];
-  if (f && (f.type.startsWith('image/') || f.type.startsWith('video/'))) setFile(f);
-}
-function handleDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('dragover'); }
-function handleDragLeave()  { document.getElementById('drop-zone').classList.remove('dragover'); }
-
-function setFile(f) {
-  selectedFile = f;
-  selectedPreviewUrl = URL.createObjectURL(f);
-  const isVideo = f.type.startsWith('video/');
-  const tag = isVideo
-    ? `<video src="${selectedPreviewUrl}" style="width:100%;height:100%;object-fit:cover" muted playsinline></video>`
-    : `<img src="${selectedPreviewUrl}" style="width:100%;height:100%;object-fit:cover" />`;
-  document.getElementById('preview-container').innerHTML =
-    `<div class="preview-box">${tag}<button class="preview-remove" onclick="clearSelection()">&#10005;</button></div>`;
-  document.getElementById('drop-zone').style.display         = 'none';
-  document.getElementById('preview-container').style.display = 'block';
+function onFieldChange(){
+  const cat=document.getElementById('mem-category').value.trim();
+  const title=document.getElementById('mem-title').value.trim();
+  const meta=getCatMeta(cat);
+  const pp=document.getElementById('poem-preview');
+  pp.textContent = cat||title ? meta.poem : '';
   checkSaveBtn();
 }
 
-function checkSaveBtn() {
-  const ok = selectedFile &&
-    document.getElementById('mem-title').value.trim() &&
-    document.getElementById('mem-category').value.trim();
-  document.getElementById('btn-save').disabled = !ok;
+function checkSaveBtn(){
+  const ok=selectedFiles.length>0 && document.getElementById('mem-category').value.trim();
+  document.getElementById('btn-save').disabled=!ok;
 }
 
-// ── FIX: capture file + fields BEFORE closing modal ──────────────────
-async function saveMemory() {
-  if (!selectedFile) { showToast('Pehle photo ya video chunein'); return; }
+async function saveMemories(){
+  if(!selectedFiles.length){showToast('Pehle files chunein');return;}
+  const category=document.getElementById('mem-category').value.trim();
+  const baseTitle=document.getElementById('mem-title').value.trim();
+  if(!category){showToast('Category likhein');return;}
 
-  const title    = document.getElementById('mem-title').value.trim();
-  const category = document.getElementById('mem-category').value.trim();
-  if (!title || !category) { showToast('Title aur category bharein'); return; }
-
-  // Capture file reference BEFORE clearing/closing modal
-  const fileToUpload = selectedFile;
-
-  // Close modal UI (clears selectedFile), but we already captured it above
+  const filesToUpload=[...selectedFiles];
   closeUpload();
 
-  try {
-    const newMem = await uploadFile(fileToUpload, title, category);
-    memories.unshift(newMem);
-    render();
-    showToast('Yaad Drive mein save ho gayi ❤️');
-  } catch (err) {
-    showToast('Upload fail hua: ' + err.message);
+  let successCount=0;
+  const total=filesToUpload.length;
+  const newMems=[];
+
+  for(let i=0;i<filesToUpload.length;i++){
+    const f=filesToUpload[i];
+    const title=baseTitle || f.name.replace(/\.[^.]+$/,'');
+    try{
+      const mem=await uploadSingleFile(f,title,category,i+1,total);
+      newMems.push(mem); successCount++;
+      await new Promise(r=>setTimeout(r,200));
+    } catch(err){
+      showToast('❌ '+f.name+' fail: '+err.message);
+    }
   }
+
+  setProgress(false);
+  memories.unshift(...newMems);
+  render();
+  showToast(successCount===total
+    ? `${successCount} yaadein Drive mein save ho gayi ❤️`
+    : `${successCount}/${total} yaadein save hui`);
 }
 
 // ── LIGHTBOX ──────────────────────────────────────────────────────────
-function openLightbox(id) {
-  const m = memories.find(x => x.id === id);
-  if (!m) return;
-  const wrap = document.getElementById('lightbox-media-wrap');
-
-  document.getElementById('lb-title').textContent = m.title;
-  document.getElementById('lb-date').textContent  = new Date(m.createdAt)
-    .toLocaleDateString('hi-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+function openLightbox(id){
+  // Build ordered list from current render (same category ordering)
+  lbCurrentList=memories;
+  const idx=lbCurrentList.findIndex(x=>x.id===id);
+  lbCurrentId=idx>=0?idx:0;
+  showLbItem(lbCurrentId);
   document.getElementById('lightbox').classList.add('open');
+  updateNavBtns();
+}
 
-  if (m.mediaType === 'video') {
-    wrap.innerHTML = `
-      <div style="text-align:center">
-        <div style="font-size:48px;margin-bottom:16px">&#127916;</div>
-        <a href="${m.webViewLink}" target="_blank"
-           style="display:inline-block;padding:12px 28px;background:#fff;color:#2c1d0e;border-radius:50px;font-size:15px;font-weight:600;text-decoration:none">
-          &#9654; Drive mein Video Dekho
-        </a>
-        <div style="margin-top:12px;color:rgba(255,255,255,.4);font-size:12px">
-          Browser mein direct video nahi chalta — Drive link pe click karo
-        </div>
-      </div>`;
+function showLbItem(idx){
+  const m=lbCurrentList[idx];
+  if(!m)return;
+  lbCurrentId=idx;
+  const wrap=document.getElementById('lightbox-media-wrap');
+  document.getElementById('lb-title').textContent=m.title;
+  document.getElementById('lb-date').textContent=new Date(m.createdAt).toLocaleDateString('hi-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  updateNavBtns();
+
+  if(m.mediaType==='video'){
+    wrap.innerHTML=`<div style="text-align:center"><div style="font-size:48px;margin-bottom:16px">🎬</div><a href="${m.webViewLink}" target="_blank" style="display:inline-block;padding:12px 28px;background:#fff;color:#2c1d0e;border-radius:50px;font-size:15px;font-weight:600;text-decoration:none">▶ Drive mein Video Dekho</a><div style="margin-top:12px;color:rgba(255,255,255,.4);font-size:12px">Browser mein direct video nahi chalta</div></div>`;
     return;
   }
-
-  // Image — load with auth token via fetch → blob URL
-  wrap.innerHTML = `<div class="lb-loading"><div class="lb-spinner"></div>Loading...</div>`;
-
+  wrap.innerHTML=`<div class="lb-loading"><div class="lb-spinner"></div>Loading...</div>`;
   gFetch(`https://www.googleapis.com/drive/v3/files/${m.id}?alt=media`)
-    .then(r => {
-      if (!r.ok) throw new Error('Load fail');
-      return r.blob();
-    })
-    .then(blob => {
-      const blobUrl = URL.createObjectURL(blob);
-      wrap.innerHTML = `<img src="${blobUrl}" class="lightbox-media" alt="${esc(m.title)}" />`;
-    })
-    .catch(() => {
-      // Fallback: thumbnail
-      if (m.thumbnailLink) {
-        wrap.innerHTML = `<img src="${m.thumbnailLink.replace('=s220','=s1200')}" class="lightbox-media" alt="${esc(m.title)}" />`;
-      } else {
-        wrap.innerHTML = `<div style="color:rgba(255,255,255,.5);font-size:14px">Image load nahi hui</div>`;
-      }
+    .then(r=>{if(!r.ok)throw new Error('fail');return r.blob();})
+    .then(blob=>{const url=URL.createObjectURL(blob);wrap.innerHTML=`<img src="${url}" class="lightbox-media" alt="${esc(m.title)}" />`;})
+    .catch(()=>{
+      if(m.thumbnailLink) wrap.innerHTML=`<img src="${m.thumbnailLink.replace('=s220','=s1200')}" class="lightbox-media" alt="${esc(m.title)}" />`;
+      else wrap.innerHTML=`<div style="color:rgba(255,255,255,.5);font-size:14px">Image load nahi hui</div>`;
     });
 }
 
-function closeLightbox(e, force) {
-  if (!force && e && e.target !== document.getElementById('lightbox')) return;
-  document.getElementById('lightbox').classList.remove('open');
-  document.getElementById('lightbox-media-wrap').innerHTML = '';
+function lbNav(dir){
+  const next=lbCurrentId+dir;
+  if(next>=0&&next<lbCurrentList.length) showLbItem(next);
 }
+
+function updateNavBtns(){
+  document.getElementById('lb-prev').style.opacity=lbCurrentId>0?'1':'0.25';
+  document.getElementById('lb-next').style.opacity=lbCurrentId<lbCurrentList.length-1?'1':'0.25';
+}
+
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); document.getElementById('lightbox-media-wrap').innerHTML=''; }
+function closeLightboxClick(e){ if(e.target===document.getElementById('lightbox')) closeLightbox(); }
 
 // ── DELETE ────────────────────────────────────────────────────────────
-function confirmDelete(id) {
-  pendingDeleteId = id;
+function confirmDelete(id){
+  pendingDeleteId=id;
   document.getElementById('confirm-overlay').classList.add('open');
-  document.getElementById('btn-confirm-del').onclick = async () => {
-    closeConfirm();
-    showStatus('Drive se delete ho raha hai...');
-    try {
-      await deleteFile(pendingDeleteId);
-      memories = memories.filter(m => m.id !== pendingDeleteId);
-      render();
-      hideStatus();
-      showToast('Yaad delete ho gayi');
-    } catch {
-      hideStatus();
-      showToast('Delete nahi hua, dobara try karo');
-    }
-    pendingDeleteId = null;
+  document.getElementById('btn-confirm-del').onclick=async()=>{
+    closeConfirm(); showStatus('Delete ho raha hai...');
+    try{ await deleteFile(pendingDeleteId); memories=memories.filter(m=>m.id!==pendingDeleteId); render(); hideStatus(); showToast('Yaad delete ho gayi'); }
+    catch{ hideStatus(); showToast('Delete nahi hua, dobara try karo'); }
+    pendingDeleteId=null;
   };
 }
-function closeConfirm() { document.getElementById('confirm-overlay').classList.remove('open'); }
+function closeConfirm(){ document.getElementById('confirm-overlay').classList.remove('open'); }
 
 // ── STATUS / TOAST ─────────────────────────────────────────────────────
-function showStatus(msg) {
-  const bar = document.getElementById('status-bar');
-  bar.style.display = 'flex';
-  document.getElementById('status-text').textContent = msg;
-}
-function hideStatus() { document.getElementById('status-bar').style.display = 'none'; }
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
-}
+function showStatus(msg){ const b=document.getElementById('status-bar'); b.style.display='flex'; document.getElementById('status-text').textContent=msg; }
+function hideStatus(){ document.getElementById('status-bar').style.display='none'; }
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
 
 // ── KEYBOARD ───────────────────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeLightbox(null,true); closeUpload(); closeConfirm(); }
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ closeLightbox(); closeUpload(); closeConfirm(); }
+  if(e.key==='ArrowLeft'  && document.getElementById('lightbox').classList.contains('open')) lbNav(-1);
+  if(e.key==='ArrowRight' && document.getElementById('lightbox').classList.contains('open')) lbNav(+1);
 });
 </script>
 </body>
