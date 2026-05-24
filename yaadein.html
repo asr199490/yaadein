@@ -89,10 +89,7 @@
     @keyframes shimmer { 0%,100%{opacity:.75} 50%{opacity:1} }
 
     /* ══════════════════════════
-       COLLAGE — FIX #1
-       All collage heights are
-       fixed so images never
-       stretch full page.
+       COLLAGE
     ══════════════════════════ */
     .collage-wrap { width: 100%; }
 
@@ -123,7 +120,7 @@
     .collage-many .ci:first-child { grid-row: 1 / 3; height: auto; }
     .collage-many .ci { height: 200px; }
 
-    /* ── Photo entry animations (varied per position) ── */
+    /* ── Photo entry animations ── */
     @keyframes enterTop    { from { opacity:0; transform: translateY(-40px) scale(.95); } to { opacity:1; transform: translateY(0) scale(1); } }
     @keyframes enterBottom { from { opacity:0; transform: translateY(40px) scale(.95);  } to { opacity:1; transform: translateY(0) scale(1); } }
     @keyframes enterLeft   { from { opacity:0; transform: translateX(-48px) scale(.95); } to { opacity:1; transform: translateX(0) scale(1); } }
@@ -132,7 +129,6 @@
     @keyframes enterFade   { from { opacity:0; transform: scale(1.08); }                 to { opacity:1; transform: scale(1); } }
     @keyframes enterSpin   { from { opacity:0; transform: scale(.8) rotate(8deg); }      to { opacity:1; transform: scale(1) rotate(0deg); } }
 
-    /* Each ci gets its animation assigned by JS via data-anim attribute */
     .ci[data-anim="top"]    { animation: enterTop    .55s cubic-bezier(.22,1,.36,1) both; }
     .ci[data-anim="bottom"] { animation: enterBottom .55s cubic-bezier(.22,1,.36,1) both; }
     .ci[data-anim="left"]   { animation: enterLeft   .55s cubic-bezier(.22,1,.36,1) both; }
@@ -141,7 +137,6 @@
     .ci[data-anim="fade"]   { animation: enterFade   .65s ease both; }
     .ci[data-anim="spin"]   { animation: enterSpin   .6s  cubic-bezier(.34,1.56,.64,1) both; }
 
-    /* Continuous subtle ken-burns on image inside */
     @keyframes kenBurns { 0%{transform:scale(1)} 50%{transform:scale(1.06) translate(1%,1%)} 100%{transform:scale(1)} }
 
     /* ── Collage Item ── */
@@ -219,6 +214,12 @@
     .field input { height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); padding: 0 13px; font-size: 14px; color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; transition: border-color .2s, box-shadow .2s; outline: none; }
     .field input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(184,134,11,.15); }
     .field input::placeholder { color: #bba88a; }
+
+    /* ── DATE FIELD special styling ── */
+    .field input[type="date"] { color: var(--text); cursor: pointer; }
+    .field input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; filter: sepia(1) saturate(3) hue-rotate(5deg); }
+    .date-hint { font-size: 11px; color: var(--muted); margin-top: 2px; font-style: italic; }
+
     .poem-preview { font-family: 'Dancing Script', cursive; font-size: 15px; color: var(--primary); min-height: 22px; transition: all .3s; font-style: italic; padding-left: 2px; }
 
     .modal-footer { padding: 14px 26px 22px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border); background: rgba(245,236,212,.25); }
@@ -245,15 +246,7 @@
     @keyframes lbFadeIn { from{opacity:0} to{opacity:1} }
     .lightbox-inner { position: relative; max-width: 92vw; max-height: 92vh; display: flex; flex-direction: column; align-items: center; }
 
-    /* ── VIDEO PLAYER in lightbox ── */
-    .lb-video {
-      max-width: 85vw; max-height: 72vh;
-      border-radius: 12px;
-      outline: none;
-      background: #000;
-      display: block;
-      animation: lbZoomIn .3s cubic-bezier(.34,1.56,.64,1);
-    }
+    .lb-video { max-width: 85vw; max-height: 72vh; border-radius: 12px; outline: none; background: #000; display: block; animation: lbZoomIn .3s cubic-bezier(.34,1.56,.64,1); }
     .lightbox-media { max-width: 85vw; max-height: 76vh; border-radius: 12px; object-fit: contain; animation: lbZoomIn .3s cubic-bezier(.34,1.56,.64,1); }
     @keyframes lbZoomIn { from{transform:scale(.88);opacity:0} to{transform:scale(1);opacity:1} }
 
@@ -374,6 +367,12 @@
         <label>Ye pal kya hai? (optional)</label>
         <input type="text" id="mem-title" placeholder="Jaise: Pehle din ki muskaan" oninput="onFieldChange()" />
       </div>
+      <!-- ── NEW: Date field ── -->
+      <div class="field">
+        <label>📅 Kab ki yaad hai? (date)</label>
+        <input type="date" id="mem-date" oninput="onFieldChange()" />
+        <span class="date-hint">Yahi date photo ke neeche dikhegi</span>
+      </div>
       <div class="poem-preview" id="poem-preview"></div>
     </div>
     <div class="modal-footer">
@@ -425,7 +424,7 @@
 <script>
 // ── CONFIG ─────────────────────────────────────────────────────────────
 const CLIENT_ID = '727148699393-0o3agpnj1hbhrcmdgab33a562rg7nodv.apps.googleusercontent.com';
-const FOLDER_ID = '1iUO3pFEDWrG8CtGqe7kDGTidGvQrNWxK'; // root parent folder
+const FOLDER_ID = '1iUO3pFEDWrG8CtGqe7kDGTidGvQrNWxK';
 const SCOPES    = 'https://www.googleapis.com/auth/drive';
 const TOKEN_KEY = 'gd_mem_token';
 const TOKEN_EXP = 'gd_mem_token_exp';
@@ -466,9 +465,7 @@ let pendingDeleteId = null;
 let tokenClient     = null;
 let lbCurrentId     = 0;
 let lbCurrentList   = [];
-
-// Category folder cache: { "Birthday": "folderId", ... }
-let folderCache = {};
+let folderCache     = {};
 
 // ── PETALS ─────────────────────────────────────────────────────────────
 (function spawnPetals() {
@@ -488,11 +485,11 @@ let folderCache = {};
 })();
 
 // ── AUTH ───────────────────────────────────────────────────────────────
-function saveToken(t)   { const exp=Date.now()+55*60*1000; try{sessionStorage.setItem(TOKEN_KEY,t);localStorage.setItem(TOKEN_KEY,t);localStorage.setItem(TOKEN_EXP,String(exp));}catch{} }
+function saveToken(t)    { const exp=Date.now()+55*60*1000; try{sessionStorage.setItem(TOKEN_KEY,t);localStorage.setItem(TOKEN_KEY,t);localStorage.setItem(TOKEN_EXP,String(exp));}catch{} }
 function loadSavedToken(){ try{const s=sessionStorage.getItem(TOKEN_KEY);if(s)return s;const exp=Number(localStorage.getItem(TOKEN_EXP)||0);if(Date.now()<exp)return localStorage.getItem(TOKEN_KEY);}catch{} return null; }
-function clearToken()   { try{sessionStorage.removeItem(TOKEN_KEY);localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(TOKEN_EXP);localStorage.removeItem(USER_KEY);}catch{} folderCache={}; }
-function saveUser(u)    { try{localStorage.setItem(USER_KEY,JSON.stringify(u));}catch{} }
-function loadSavedUser(){ try{return JSON.parse(localStorage.getItem(USER_KEY)||'null');}catch{return null;} }
+function clearToken()    { try{sessionStorage.removeItem(TOKEN_KEY);localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(TOKEN_EXP);localStorage.removeItem(USER_KEY);}catch{} folderCache={}; }
+function saveUser(u)     { try{localStorage.setItem(USER_KEY,JSON.stringify(u));}catch{} }
+function loadSavedUser() { try{return JSON.parse(localStorage.getItem(USER_KEY)||'null');}catch{return null;} }
 
 window.addEventListener('load', () => {
   const saved = loadSavedToken();
@@ -550,14 +547,11 @@ async function gFetchR(url, opts={}) {
   return r;
 }
 
-// ── FIX #2: Category-wise folders ─────────────────────────────────────
-// Find an existing subfolder by name under FOLDER_ID, or create it.
+// ── CATEGORY FOLDER ────────────────────────────────────────────────────
 async function getOrCreateCategoryFolder(category) {
-  // Check cache first
   const key = category.trim().toLowerCase();
   if (folderCache[key]) return folderCache[key];
 
-  // Search Drive for existing folder with this name inside FOLDER_ID
   const q = encodeURIComponent(
     `'${FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.folder' and name='${category.replace(/'/g,"\\'")}' and trashed=false`
   );
@@ -570,7 +564,6 @@ async function getOrCreateCategoryFolder(category) {
     return data.files[0].id;
   }
 
-  // Create the folder
   const body = JSON.stringify({ name: category, mimeType: 'application/vnd.google-apps.folder', parents: [FOLDER_ID] });
   const cr = await gFetchR('https://www.googleapis.com/drive/v3/files?fields=id,name', {
     method: 'POST',
@@ -586,28 +579,20 @@ async function getOrCreateCategoryFolder(category) {
 // ── LOAD FILES ─────────────────────────────────────────────────────────
 async function loadFiles() {
   showStatus('Drive se memories la raha hoon...');
-  // Load files from FOLDER_ID and all its subfolders (category folders)
-  // We search recursively: files whose ancestor is FOLDER_ID
   const q      = encodeURIComponent(`'${FOLDER_ID}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed=false`);
   const fields = encodeURIComponent('files(id,name,mimeType,createdTime,description,thumbnailLink,webContentLink,webViewLink,parents)');
-
-  // Also load from sub-folders using a broader ancestor query
   const q2     = encodeURIComponent(`'${FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`);
   const subR   = await gFetchR(`https://www.googleapis.com/drive/v3/files?q=${q2}&fields=files(id,name)&pageSize=100`);
   let allFiles = [];
 
-  // Fetch files in root folder
   const rootR = await gFetchR(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=${fields}&orderBy=createdTime+desc&pageSize=500`);
   if (!rootR.ok) { if(rootR.status===401){clearToken();showAuth();throw new Error('Unauthorized');} throw new Error('Load fail'); }
   const rootData = await rootR.json();
   allFiles = allFiles.concat((rootData.files || []).map(f => parseFileMeta(f, null)));
 
-  // Fetch files from each category subfolder
   if (subR.ok) {
     const subData = await subR.json();
     const subFolders = subData.files || [];
-
-    // Cache the folder IDs we found
     for (const sf of subFolders) { folderCache[sf.name.trim().toLowerCase()] = sf.id; }
 
     await Promise.all(subFolders.map(async (sf) => {
@@ -620,36 +605,43 @@ async function loadFiles() {
     }));
   }
 
-  // Sort all by date desc
-  allFiles.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  allFiles.sort((a,b) => new Date(b.displayDate) - new Date(a.displayDate));
   memories = allFiles;
   hideStatus();
   render();
 }
 
+// ── CHANGED: parseFileMeta — memDate se custom date use karo ──────────
 function parseFileMeta(f, folderName) {
   let meta = {}; try{ meta = JSON.parse(f.description||'{}'); }catch{}
   const isVideo = (f.mimeType||'').startsWith('video/');
+
+  // memDate (YYYY-MM-DD) saved at upload time → use it; else fall back to Drive createdTime
+  const displayDate = meta.memDate
+    ? new Date(meta.memDate + 'T00:00:00').toISOString()
+    : (f.createdTime || new Date().toISOString());
+
   return {
     id:             f.id,
     title:          meta.title    || f.name.replace(/\.[^.]+$/, ''),
-    // category from folder name (most reliable) or meta fallback
     category:       folderName    || meta.category || 'Bina Category',
     mediaType:      isVideo ? 'video' : 'image',
     mimeType:       f.mimeType,
     thumbnailLink:  f.thumbnailLink  || '',
     webContentLink: f.webContentLink || '',
     webViewLink:    f.webViewLink    || '',
+    displayDate,                         // ← used for display & sorting
     createdAt:      f.createdTime    || new Date().toISOString(),
   };
 }
 
 // ── UPLOAD ─────────────────────────────────────────────────────────────
-async function uploadSingleFile(file, title, category, folderId, idx, total) {
-  const description = JSON.stringify({ title, category, uploadedAt: new Date().toISOString() });
+// CHANGED: memDate parameter added
+async function uploadSingleFile(file, title, category, folderId, idx, total, memDate) {
+  // CHANGED: memDate stored in description metadata
+  const description = JSON.stringify({ title, category, memDate, uploadedAt: new Date().toISOString() });
   const ext  = (file.name.match(/\.[^.]+$/) || [''])[0];
   const name = title.replace(/[^\w\u0900-\u097F ]/g,'_').trim() + '_' + Date.now() + ext;
-  // FIX #2: use the category folder id instead of root FOLDER_ID
   const fileMeta = { name, mimeType: file.type, description, parents: [folderId] };
 
   if (file.size < 5 * 1024 * 1024) {
@@ -666,7 +658,7 @@ async function uploadSingleFile(file, title, category, folderId, idx, total) {
     return parseFileMeta(await r.json(), category);
   }
 
-  // Large file — resumable with XHR progress
+  // Large file — resumable
   const initR = await gFetchR(
     'https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id,name,mimeType,createdTime,description,thumbnailLink,webContentLink,webViewLink',
     { method:'POST', headers:{'Content-Type':'application/json','X-Upload-Content-Type':file.type,'X-Upload-Content-Length':file.size}, body:JSON.stringify(fileMeta) }
@@ -753,14 +745,12 @@ function render() {
   container.innerHTML = html;
 }
 
-// ── FIX #1: Collage always renders in grid, never stretches ────────────
 function renderCollage(items) {
   const MAX_COLLAGE = 6;
   const main = items.slice(0, MAX_COLLAGE);
   const rest = items.slice(MAX_COLLAGE);
   const n = main.length;
 
-  // Pick the right class — capped at 'many' for 6+
   let cls;
   if      (n === 1) cls = 'collage-1';
   else if (n === 2) cls = 'collage-2';
@@ -796,11 +786,11 @@ function renderCollage(items) {
   return `<div class="collage-wrap"><div class="${cls}">${inner}</div>${strip}</div>`;
 }
 
-// Varied entry animations cycling through directions
 const ANIM_TYPES = ['left','top','right','bottom','zoom','fade','spin','left','zoom','right'];
 
 function ciHtml(m, extraOverlay='', idx=0) {
-  const date  = new Date(m.createdAt).toLocaleDateString('hi-IN',{day:'numeric',month:'short',year:'numeric'});
+  // CHANGED: use displayDate instead of createdAt for bottom-left date label
+  const date  = new Date(m.displayDate).toLocaleDateString('hi-IN',{day:'numeric',month:'short',year:'numeric'});
   const delay = (idx * 0.1) + 's';
   const anim  = ANIM_TYPES[idx % ANIM_TYPES.length];
   let media;
@@ -835,8 +825,10 @@ function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 // ── UPLOAD MODAL ───────────────────────────────────────────────────────
 function openUpload() {
   document.getElementById('upload-modal').classList.add('open');
-  document.getElementById('mem-title').value = '';
+  document.getElementById('mem-title').value    = '';
   document.getElementById('mem-category').value = '';
+  // CHANGED: default date = today
+  document.getElementById('mem-date').value     = new Date().toISOString().split('T')[0];
   document.getElementById('poem-preview').textContent = '';
   clearSelection(); checkSaveBtn();
 }
@@ -894,18 +886,20 @@ function checkSaveBtn() {
   document.getElementById('btn-save').disabled = !ok;
 }
 
-// ── SAVE (FIX #2 integrated) ───────────────────────────────────────────
+// ── SAVE ───────────────────────────────────────────────────────────────
 async function saveMemories() {
   if (!selectedFiles.length) { showToast('Pehle files chunein'); return; }
   const category  = document.getElementById('mem-category').value.trim();
   const baseTitle = document.getElementById('mem-title').value.trim();
+  // CHANGED: read memDate from the date field
+  const memDate   = document.getElementById('mem-date').value; // "YYYY-MM-DD"
   if (!category) { showToast('Category likhein'); return; }
 
   const filesToUpload = [...selectedFiles];
-  closeUpload(); // safe — filesToUpload is local copy
+  closeUpload();
 
   let successCount = 0;
-  const total  = filesToUpload.length;
+  const total   = filesToUpload.length;
   const newMems = [];
 
   try {
@@ -916,7 +910,8 @@ async function saveMemories() {
       const f     = filesToUpload[i];
       const title = baseTitle || f.name.replace(/\.[^.]+$/, '');
       try {
-        const mem = await uploadSingleFile(f, title, category, folderId, i+1, total);
+        // CHANGED: pass memDate to uploadSingleFile
+        const mem = await uploadSingleFile(f, title, category, folderId, i+1, total, memDate);
         newMems.push(mem);
         successCount++;
         await new Promise(r => setTimeout(r, 200));
@@ -936,7 +931,7 @@ async function saveMemories() {
     : `${successCount}/${total} yaadein save hui`);
 }
 
-// ── LIGHTBOX (FIX #3: video direct play) ──────────────────────────────
+// ── LIGHTBOX ──────────────────────────────────────────────────────────
 function openLightbox(id) {
   lbCurrentList = memories;
   const idx = lbCurrentList.findIndex(x => x.id === id);
@@ -953,11 +948,11 @@ function showLbItem(idx) {
 
   const wrap = document.getElementById('lightbox-media-wrap');
   document.getElementById('lb-title').textContent = m.title;
-  document.getElementById('lb-date').textContent  = new Date(m.createdAt).toLocaleDateString('hi-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  // CHANGED: lightbox bhi displayDate dikhaye
+  document.getElementById('lb-date').textContent  = new Date(m.displayDate).toLocaleDateString('hi-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   updateNavBtns();
 
   if (m.mediaType === 'video') {
-    // Google Drive iframe preview — no CORS issues, full native player
     wrap.innerHTML = `
       <div style="position:relative;width:min(85vw,860px);aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;box-shadow:0 8px 40px rgba(0,0,0,.6)">
         <iframe
@@ -970,7 +965,6 @@ function showLbItem(idx) {
     return;
   }
 
-  // Image: load via authenticated blob
   wrap.innerHTML = `<div class="lb-loading"><div class="lb-spinner"></div><span>Loading...</span></div>`;
   gFetch(`https://www.googleapis.com/drive/v3/files/${m.id}?alt=media`)
     .then(r => { if (!r.ok) throw new Error('fail'); return r.blob(); })
@@ -1000,10 +994,8 @@ function updateNavBtns() {
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open');
   const wrap = document.getElementById('lightbox-media-wrap');
-  // Stop iframe video by clearing src before removing
   const iframe = wrap.querySelector('iframe');
   if (iframe) iframe.src = '';
-  // Cleanup image blob URLs
   const img = wrap.querySelector('img');
   if (img && img.src.startsWith('blob:')) URL.revokeObjectURL(img.src);
   wrap.innerHTML = '';
